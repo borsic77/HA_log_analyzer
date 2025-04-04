@@ -122,7 +122,6 @@ Log:
                 summary = response.choices[0].message.content  # Extract the summary from the response
                 st.subheader("📝 Summary")
                 st.markdown(summary)  # Display the summary to the user
-ß
             except Exception as e:
                 st.error(f"Error contacting OpenAI API: {e}")
 else:
