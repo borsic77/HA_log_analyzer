@@ -15,7 +15,7 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the log_summarizer service."""
     
     def handle_summarize_logs(call: ServiceCall):
-        file_path = call.data.get("file_path")
+        file_path = call.data.get("file_path", "/config/home-assistant.log")
 
         if not file_path or not os.path.isfile(file_path):
             _LOGGER.error("Invalid file path: %s", file_path)

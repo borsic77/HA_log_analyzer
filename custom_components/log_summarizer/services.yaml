@@ -1,2 +1,9 @@
 summarize_logs:
-  description: Analyze recent logs and summarize errors and warnings using GPT.
+  description: Analyze the specified Home Assistant log file using GPT
+  fields:
+    file_path:
+      description: Optional path to the log file to analyze
+      example: "/config/home-assistant.log"
+      required: false
+      selector:
+        text:
