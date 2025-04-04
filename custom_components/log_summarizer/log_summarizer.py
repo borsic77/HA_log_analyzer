@@ -14,7 +14,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the log_summarizer service."""
-    
+    try:
+        api_key = hass.config.secrets["openai_api_key"]
+    except KeyError:
+        _LOGGER.error("Missing 'openai_api_key' in secrets.yaml. Cannot initialize log_summarizer.")
+        return False
+    hass.data["log_summarizer_api_key"] = api_key
+
     def handle_summarize_logs(call: ServiceCall):
         file_path = call.data.get("file_path", "/config/home-assistant.log")
 
@@ -37,7 +43,7 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
         model = call.data.get("model", "gpt-4o-mini")
 
         try:
-            client = get_openai_client()
+            client = get_openai_client(api_key)
             prompt = f"""You are an expert in Home Assistant logs. Your task is to analyze the following log snippet and provide:
 
 1. A list of actionable steps the user can take to resolve the reported errors and warnings. Refer to the specific entities or integrations involved (e.g., sensor names, platform names).
