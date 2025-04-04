@@ -1,0 +1,9 @@
+{
+    "domain": "log_summarizer",
+    "name": "Log Summarizer",
+    "documentation": "https://github.com/borsic77/HA_log_analyzer",
+    "dependencies": [],
+    "codeowners": ["@borsic77"],
+    "version": "0.1.0",
+    "requirements": []
+  }

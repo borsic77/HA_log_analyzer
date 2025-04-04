@@ -1,0 +1,2 @@
+summarize_logs:
+  description: Analyze recent logs and summarize errors and warnings using GPT.
