@@ -1,8 +1,17 @@
 [project]
 name = "ha-log-analyzer"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "A Streamlit-based tool that summarizes Home Assistant logs using GPT-4o-mini."
+authors = [{ name = "Boris Legradic" }]
+license = { text = "MIT" }
+keywords = ["home-assistant", "logs", "gpt", "streamlit", "openai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Framework :: Streamlit"
+]
 requires-python = ">=3.11"
 dependencies = [
     "openai>=1.70.0",
