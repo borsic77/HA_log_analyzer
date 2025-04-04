@@ -1,6 +1,10 @@
 # 🧠 Home Assistant Log Summarizer
 
-A proof-of-concept Streamlit app that summarizes recent `home-assistant.log` entries using OpenAI’s GPT-4o-mini.
+A proof-of-concept project that summarizes recent `home-assistant.log` entries using OpenAI’s GPT-4o-mini.
+
+This repository includes:
+- A Streamlit-based log viewer and LLM-powered summarizer in `streamlit_app/`
+- A scaffold for a Home Assistant custom integration in `custom_components/log_summarizer/`
 
 ## Features
 
@@ -39,7 +43,7 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ### 4. Run the app
 
 ```bash
-streamlit run main.py
+streamlit run streamlit_app/main.py
 ```
 
 ---
