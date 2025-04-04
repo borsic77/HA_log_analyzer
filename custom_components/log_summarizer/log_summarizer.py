@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.typing import ConfigType
 
 from .log_utils import preprocess_log, extract_time_range
+from .gpt_client import get_openai_client
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,11 +34,40 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
         trimmed_log = preprocess_log(raw_log, max_lines=100, hours_back=24, reference_time=reference_time)
         start, end = extract_time_range(trimmed_log)
 
+        model = call.data.get("model", "gpt-4o-mini")
+
+        try:
+            client = get_openai_client()
+            prompt = f"""You are an expert in Home Assistant logs. Your task is to analyze the following log snippet and provide:
+
+1. A list of actionable steps the user can take to resolve the reported errors and warnings. Refer to the specific entities or integrations involved (e.g., sensor names, platform names).
+2. A brief summary of what was happening in the system.
+
+You do not need to group similar issues — that has already been handled.
+
+Log:
+{trimmed_log}
+"""
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You explain Home Assistant logs and suggest actionable fixes."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=800,
+            )
+            summary = response.choices[0].message.content
+
+            hass.components.persistent_notification.create(
+                summary, title="GPT Log Summary"
+            )
+        except Exception as e:
+            _LOGGER.error("Failed to summarize log using OpenAI: %s", e)
+
         # Placeholder summary until GPT logic is integrated
         _LOGGER.info("Preprocessed %s, covering %s to %s", file_path, start, end)
         _LOGGER.debug("Filtered log:\n%s", trimmed_log)
-
-        # This is where the GPT logic will be added later
 
     hass.services.register("log_summarizer", "summarize_logs", handle_summarize_logs)
     _LOGGER.info("log_summarizer integration initialized")

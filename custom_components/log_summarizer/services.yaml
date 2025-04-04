@@ -7,3 +7,10 @@ summarize_logs:
       required: false
       selector:
         text:
+    model:
+      description: Optional OpenAI model to use for summarization
+      example: "gpt-4o-mini"
+      required: false
+      default: "gpt-4o-mini"
+      selector:
+        text:
