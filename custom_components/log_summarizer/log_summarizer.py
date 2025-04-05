@@ -9,6 +9,7 @@ from homeassistant.helpers.typing import ConfigType
 
 from .log_utils import preprocess_log, extract_time_range
 from .gpt_client import get_openai_client
+from homeassistant.components.persistent_notification import async_create as notify
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,8 +72,8 @@ Log:
             )
             summary = response.choices[0].message.content
 
-            hass.components.persistent_notification.create(
-                summary, title="GPT Log Summary"
+            hass.async_create_task(
+                notify(hass, summary, title="GPT Log Summary")
             )
         except Exception as e:
             _LOGGER.error("Failed to summarize log using OpenAI: %s", e)
