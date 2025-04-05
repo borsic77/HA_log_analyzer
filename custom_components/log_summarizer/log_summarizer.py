@@ -14,11 +14,17 @@ _LOGGER = logging.getLogger(__name__)
 
 def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the log_summarizer service."""
+    _LOGGER.info("✅ log_summarizer setup() called")
+
+    # Access the api_key under 'log_summarizer' from the configuration
     try:
-        api_key = hass.config.secrets["openai_api_key"]
+        api_key = config.get("log_summarizer", {}).get("api_key")
+        if not api_key:
+            raise KeyError("api_key missing")
     except KeyError:
-        _LOGGER.error("Missing 'openai_api_key' in secrets.yaml. Cannot initialize log_summarizer.")
+        _LOGGER.error("Missing 'api_key' in configuration.yaml under 'log_summarizer'.")
         return False
+
     hass.data["log_summarizer_api_key"] = api_key
 
     def handle_summarize_logs(call: ServiceCall):
@@ -76,5 +82,5 @@ Log:
         _LOGGER.debug("Filtered log:\n%s", trimmed_log)
 
     hass.services.register("log_summarizer", "summarize_logs", handle_summarize_logs)
-    _LOGGER.info("log_summarizer integration initialized")
+    _LOGGER.info("✅ log_summarizer.summarize_logs service registered")
     return True
