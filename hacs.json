@@ -1,0 +1,11 @@
+{
+    "name": "Log Summarizer",
+    "domain": "log_summarizer",
+    "author": "borsic77",
+    "description": "Summarizes Home Assistant logs using GPT and provides actionable suggestions.",
+    "documentation": "https://github.com/borsic77/HA_log_analyzer",
+    "version": "0.1.0",
+    "requirements": [],
+    "codeowners": ["@borsic77"],
+    "iot_class": "cloud_polling"
+  }
