@@ -45,6 +45,8 @@ def preprocess_log(raw_log: str, max_lines: int = 100, hours_back: int = 24, ref
         else:
             result_lines.append(latest_entry[1])
 
+    print("\n".join(result_lines[:max_lines]))  # Debug output
+
     return "\n".join(result_lines[:max_lines])
 
 def extract_time_range(processed_log: str) -> Tuple[datetime, datetime]:
@@ -67,3 +69,7 @@ def save_summary_to_file(summary: str, path: str = "/config/gpt_summary.txt") ->
     """Save the GPT summary to a file that can be read by a markdown card or command_line sensor."""
     with open(path, "w", encoding="utf-8") as f:
         f.write(summary)
+
+def read_log_file(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
