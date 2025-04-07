@@ -7,7 +7,7 @@ from datetime import datetime
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.typing import ConfigType
 
-from .log_utils import preprocess_log, extract_time_range
+from .log_utils import preprocess_log, extract_time_range, save_summary_to_file
 from .gpt_client import get_openai_client
 from homeassistant.components.persistent_notification import async_create as notify
 
@@ -79,6 +79,7 @@ Log:
 
         response = await hass.async_add_executor_job(_call_openai)
         summary = response.choices[0].message.content
+        await hass.async_add_executor_job(save_summary_to_file, summary)
 
         await notify(hass, summary, title="GPT Log Summary")
 

@@ -62,3 +62,8 @@ def extract_time_range(processed_log: str) -> Tuple[datetime, datetime]:
     if timestamps:
         return min(timestamps), max(timestamps)
     return None, None
+
+def save_summary_to_file(summary: str, path: str = "/config/gpt_summary.txt") -> None:
+    """Save the GPT summary to a file that can be read by a markdown card or command_line sensor."""
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(summary)
