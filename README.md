@@ -90,12 +90,5 @@ streamlit run streamlit_app/main.py
 
 ---
 
-## Roadmap
-
-- [ ] Convert to a Home Assistant custom integration with manual service trigger
-- [ ] Display summaries in Lovelace
-- [ ] Optional deployment via add-on or Docker
-
----
 
 Created by Boris Legradic · MIT License
