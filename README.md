@@ -51,6 +51,15 @@ openai_api_key: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 To get your API key, create an account and generate a key at [OpenAI's API key page](https://platform.openai.com/account/api-keys).
 
+**Note:** Accessing the OpenAI API is separate from a ChatGPT Plus subscription. Even if you have ChatGPT Plus, you'll need to create a separate OpenAI account at [platform.openai.com](https://platform.openai.com) and set up billing.
+
+The OpenAI API uses a **pay-as-you-go prepaid model**, where you're billed per token (roughly per word). As of April 2025, the pricing is:
+
+- **GPT-4o**: $0.005 / 1K input tokens, $0.015 / 1K output tokens
+- **GPT-3.5-turbo**: $0.0005 / 1K input tokens, $0.0015 / 1K output tokens
+
+This integration is designed to be run manually (e.g., on demand, not constantly), so usage costs are typically very low — often just a few cents per run.
+
 4. Restart Home Assistant.
 
 5. Use **Developer Tools → Actions** to call the `log_summarizer.summarize_logs` service and optionally provide the `file_path` and `model`.
