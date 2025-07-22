@@ -1,11 +1,30 @@
-"""OpenAI client setup for log summarization."""
+"""LLM client helpers using LiteLLM."""
 
-import os
-from openai import OpenAI
+from typing import Dict, List
 
-def get_openai_client(api_key: str) -> OpenAI:
-    """Return an OpenAI client configured with the given API key."""
-    return OpenAI(api_key=api_key)
+import litellm
+
+
+def get_litellm_client(provider: str, api_key: str) -> dict:
+    """Return parameters used by LiteLLM for authentication."""
+    return {"api_key": api_key, "custom_llm_provider": provider}
+
+
+def fetch_available_models(_: Dict[str, str]) -> List[str]:
+    """Return the list of supported models from LiteLLM."""
+    try:
+        models = litellm.get_model_list()
+        if models:
+            return models
+    except Exception:
+        pass
+    return litellm.model_list
+
+
+def get_provider_for_model(model: str) -> str:
+    """Infer the provider for the given model using LiteLLM."""
+    _, provider, _, _ = litellm.get_llm_provider(model)
+    return provider
 
 def generate_prompt(trimmed_log: str) -> str:
     return f"""You are an expert in troubleshooting Home Assistant installations. You are given a preprocessed log file that includes warnings and errors filtered for relevance.
@@ -25,13 +44,15 @@ Log snippet:
 {trimmed_log}
 """
 
-def call_openai_summary(client, model: str, prompt: str):
-    return client.chat.completions.create(
+def call_llm_summary(client_params: dict, model: str, prompt: str):
+    """Call the selected model via LiteLLM and return the response."""
+    return litellm.completion(
         model=model,
         messages=[
             {"role": "system", "content": "You explain Home Assistant logs and suggest actionable fixes."},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
         ],
         temperature=0.3,
         max_tokens=800,
+        **client_params,
     )

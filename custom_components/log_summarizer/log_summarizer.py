@@ -8,7 +8,13 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.typing import ConfigType
 
 from .log_utils import preprocess_log, extract_time_range, save_summary_to_file, read_log_file
-from .gpt_client import get_openai_client, generate_prompt, call_openai_summary
+from .gpt_client import (
+    get_litellm_client,
+    generate_prompt,
+    call_llm_summary,
+    fetch_available_models,
+    get_provider_for_model,
+)
 from homeassistant.components.persistent_notification import async_create as notify
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,16 +25,21 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the log_summarizer service."""
     _LOGGER.info("✅ log_summarizer setup() called")
 
-    # Access the api_key under 'log_summarizer' from the configuration
+    # Access provider-specific api_keys under 'log_summarizer' from the configuration
     try:
-        api_key = config.get("log_summarizer", {}).get("api_key")
-        if not api_key:
-            raise KeyError("api_key missing")
+        api_keys = config.get("log_summarizer", {}).get("api_keys")
+        if not isinstance(api_keys, dict):
+            raise KeyError("api_keys missing")
     except KeyError:
-        _LOGGER.error("Missing 'api_key' in configuration.yaml under 'log_summarizer'.")
+        _LOGGER.error("Missing 'api_keys' in configuration.yaml under 'log_summarizer'.")
         return False
 
-    hass.data["log_summarizer_api_key"] = api_key
+    hass.data["log_summarizer_api_keys"] = api_keys
+
+    # Fetch available models at startup
+    models = fetch_available_models(api_keys)
+    hass.data["log_summarizer_models"] = models
+    _LOGGER.info("Available models: %s", models)
 
     async def handle_summarize_logs(call: ServiceCall):
         file_path = call.data.get("file_path", "/config/home-assistant.log")
@@ -51,11 +62,16 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
         start, end = extract_time_range(trimmed_log)
 
         model = call.data.get("model", "gpt-4o-mini")
+        provider = get_provider_for_model(model)
+        api_key = api_keys.get(provider)
+        if not api_key:
+            _LOGGER.error("No API key configured for provider: %s", provider)
+            return
 
-        client = await hass.async_add_executor_job(get_openai_client, api_key)
+        client_params = await hass.async_add_executor_job(get_litellm_client, provider, api_key)
 
         prompt = generate_prompt(trimmed_log)
-        response = await hass.async_add_executor_job(call_openai_summary, client, model, prompt)
+        response = await hass.async_add_executor_job(call_llm_summary, client_params, model, prompt)
         summary = response.choices[0].message.content
         await hass.async_add_executor_job(save_summary_to_file, summary)
 
@@ -67,4 +83,12 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     hass.services.register("log_summarizer", "summarize_logs", handle_summarize_logs)
     _LOGGER.info("✅ log_summarizer.summarize_logs service registered")
+
+    async def handle_update_models(call: ServiceCall):
+        models = fetch_available_models(api_keys)
+        hass.data["log_summarizer_models"] = models
+        _LOGGER.info("Updated available models: %s", models)
+
+    hass.services.register("log_summarizer", "update_models", handle_update_models)
+    _LOGGER.info("✅ log_summarizer.update_models service registered")
     return True
