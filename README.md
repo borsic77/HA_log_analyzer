@@ -1,6 +1,6 @@
 # 🧠 Home Assistant Log Summarizer
 
-A proof-of-concept project that summarizes recent `home-assistant.log` entries using OpenAI’s GPT-4o-mini, either from within Home Assistant or via an optional Streamlit debug interface.
+A proof-of-concept project that summarizes recent `home-assistant.log` entries using LiteLLM. By default it queries GPT-4o-mini but you can switch to any supported model. It works from within Home Assistant or via an optional Streamlit debug interface.
 
 This repository includes:
 - A Streamlit-based log viewer and LLM-powered summarizer in `streamlit_app/`
@@ -36,20 +36,23 @@ This method ensures easier future updates and visibility through HACS.
 
 1. Copy the contents of `custom_components/log_summarizer/` into your Home Assistant's `config/custom_components/log_summarizer/` directory.
 
-2. In your `configuration.yaml`, add the following block (you can store the API key in `secrets.yaml`):
+2. In your `configuration.yaml`, add the following block (you can store the API keys in `secrets.yaml`):
 
 ```yaml
 log_summarizer:
-  api_key: !secret openai_api_key
+  api_keys:
+    openai: !secret openai_api_key
+    anthropic: !secret anthropic_api_key
 ```
 
 3. In `secrets.yaml`, add:
 
 ```yaml
 openai_api_key: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+anthropic_api_key: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-To get your API key, create an account and generate a key at [OpenAI's API key page](https://platform.openai.com/account/api-keys).
+This key can be from OpenAI or any provider supported by LiteLLM. If using OpenAI, create a key at [OpenAI's API key page](https://platform.openai.com/account/api-keys).
 
 **Note:** Accessing the OpenAI API is separate from a ChatGPT Plus subscription. Even if you have ChatGPT Plus, you'll need to create a separate OpenAI account at [platform.openai.com](https://platform.openai.com) and set up billing.
 
@@ -83,12 +86,13 @@ source .venv/bin/activate
 uv pip install -e .
 ```
 
-### 3. Add your OpenAI API key
+### 3. Add your API keys
 
 Create a file called `.env` in the project root with the following contents:
 
 ```env
 OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ANTHROPIC_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ### 4. Run the app
